@@ -11,7 +11,6 @@
 {
   if (self = [super init]) {
     _heatmap = [[GMUHeatmapTileLayer alloc] init];
-    [self generateHeatmapItems];
   }
   return self;
 }
@@ -46,30 +45,12 @@
 
 - (void)setOpacity:(NSNumber *) opacity {
   _opacity = opacity;
-  _heatmap.opacity = 1.0;
+  _heatmap.opacity = [opacity floatValue];
   NSLog(@"%@", opacity);
 
   [_heatmap clearTileCache];
 }
 
-/*
- public void setGradient(ReadableMap gradient) {
- ReadableArray rawColors = gradient.getArray("colors");
- ReadableArray rawValues = gradient.getArray("values");
- int[] colors = new int[rawColors.size()];
- float[] values = new float[rawColors.size()];
- for (int i = 0; i < rawColors.size(); i++) {
- colors[i] = Color.parseColor(rawColors.getString(i));
- values[i] = ((float) rawValues.getDouble(i));
- }
- 
- this.gradient = new Gradient(colors, values);
- if (heatmapTileProvider != null) {
- heatmapTileProvider.setGradient(this.gradient);
- refreshMap();
- }
- }
- */
 - (UIColor *)colorFromHexString:(NSString *)hexString {
   unsigned rgbValue = 0;
   NSScanner *scanner = [NSScanner scannerWithString:hexString];
@@ -98,30 +79,5 @@
   _heatmap.gradient = gmuGradient;
   [_heatmap clearTileCache];
 }
-
-
-
-#pragma mark Private
-
-- (void)generateHeatmapItems {
-  const double extent = 0.2;
-  NSMutableArray<GMUWeightedLatLng *> *items = [NSMutableArray arrayWithCapacity:150];
-  for (int index = 0; index < 150; ++index) {
-    double lat = 37.78825 + extent * [self randomScale];
-    double lng = -122.4324 + extent * [self randomScale];
-    GMUWeightedLatLng *item =
-    [[GMUWeightedLatLng alloc] initWithCoordinate:CLLocationCoordinate2DMake(lat, lng)
-                                        intensity:1.0];
-    items[index] = item;
-  }
-  _heatmap.weightedData = items;
-}
-
-// Returns a random value between -1.0 and 1.0.
-- (double)randomScale {
-  return (double)arc4random() / UINT32_MAX * 2.0 - 1.0;
-}
-
-
 
 @end
