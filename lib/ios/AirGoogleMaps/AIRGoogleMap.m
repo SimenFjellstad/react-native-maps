@@ -11,6 +11,7 @@
 #import "AIRGoogleMapPolyline.h"
 #import "AIRGoogleMapCircle.h"
 #import "AIRGoogleMapUrlTile.h"
+#import "AIRGoogleMapHeatmap.h"
 #import <GoogleMaps/GoogleMaps.h>
 #import <MapKit/MapKit.h>
 #import <React/UIView+React.h>
@@ -46,6 +47,7 @@ id regionAsJSON(MKCoordinateRegion region) {
     _polylines = [NSMutableArray array];
     _circles = [NSMutableArray array];
     _tiles = [NSMutableArray array];
+    _tileLayers = [NSMutableArray array];
     _initialRegionSet = false;
   }
   return self;
@@ -91,7 +93,16 @@ id regionAsJSON(MKCoordinateRegion region) {
     AIRGoogleMapUrlTile *tile = (AIRGoogleMapUrlTile*)subview;
     tile.tileLayer.map = self;
     [self.tiles addObject:tile];
-  } else {
+    
+  }
+  
+  else if ([subview isKindOfClass:[AIRGoogleMapHeatmap class]]) {
+    AIRGoogleMapHeatmap *heatmap = (AIRGoogleMapHeatmap*)subview;
+    heatmap.heatmap.map = self;
+    [self.tileLayers addObject:heatmap];
+  }
+  
+  else {
     NSArray<id<RCTComponent>> *childSubviews = [subview reactSubviews];
     for (int i = 0; i < childSubviews.count; i++) {
       [self insertReactSubview:(UIView *)childSubviews[i] atIndex:atIndex];
@@ -127,7 +138,15 @@ id regionAsJSON(MKCoordinateRegion region) {
     AIRGoogleMapUrlTile *tile = (AIRGoogleMapUrlTile*)subview;
     tile.tileLayer.map = nil;
     [self.tiles removeObject:tile];
-  } else {
+  }
+  
+  else if ([subview isKindOfClass:[AIRGoogleMapHeatmap class]]) {
+    AIRGoogleMapHeatmap *heatmap = (AIRGoogleMapHeatmap*)subview;
+    heatmap.heatmap.map = nil;
+    [self.tileLayers removeObject:heatmap];
+  }
+  
+  else {
     NSArray<id<RCTComponent>> *childSubviews = [subview reactSubviews];
     for (int i = 0; i < childSubviews.count; i++) {
       [self removeReactSubview:(UIView *)childSubviews[i]];
