@@ -27,5 +27,8 @@
 @property (nonatomic, assign) NSNumber *opacity;
 @property (nonatomic, assign) NSUInteger radius;
 
+- (void)initiate;
+
+
 @end
 

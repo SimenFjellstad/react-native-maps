@@ -176,6 +176,13 @@ id regionAsJSON(MKCoordinateRegion region) {
 
 - (void)didFinishTileRendering {
     if (self.onMapReady) self.onMapReady(@{});
+  for(int i = 0; i < [_tileLayers count]; i++){
+    if([_tileLayers[i] isKindOfClass:[AIRGoogleMapHeatmap class]]){
+      AIRGoogleMapHeatmap *item = (AIRGoogleMapHeatmap *) _tileLayers[i];
+      [item initiate];
+    }
+    
+  }
 }
 
 - (BOOL)didTapMarker:(GMSMarker *)marker {

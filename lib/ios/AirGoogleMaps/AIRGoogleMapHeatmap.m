@@ -14,10 +14,11 @@
   }
   return self;
 }
-(void)viewDidLoad:(BOOL)animated{
-    [super viewDidLoad];
+
+- (void)initiate{
     _heatmap.map = _map;
 }
+
 - (void)setRadius:(NSUInteger)radius {
    if (radius > 50){
     _radius = 50;
