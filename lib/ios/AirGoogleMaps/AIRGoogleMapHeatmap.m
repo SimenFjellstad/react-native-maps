@@ -75,11 +75,6 @@
   for(int i = 0; i < [rawColors count]; i++){
     [colors addObject:[self colorFromHexString:rawColors[i]]];
     [values addObject:rawValues[i]];
-    NSLog(@"COLOR ENTRY:");
-    NSLog(@"%@", rawColors[i]);
-    NSLog(@"%@", rawValues[i]);
-    NSLog(@"%@", colors[i]);
-    NSLog(@"%@", values[i]);
   }
   GMUGradient *gmuGradient =[[GMUGradient alloc] initWithColors:colors
                                                    startPoints:values
