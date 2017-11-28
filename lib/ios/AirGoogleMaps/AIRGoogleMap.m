@@ -98,7 +98,7 @@ id regionAsJSON(MKCoordinateRegion region) {
   
   else if ([subview isKindOfClass:[AIRGoogleMapHeatmap class]]) {
     AIRGoogleMapHeatmap *heatmap = (AIRGoogleMapHeatmap*)subview;
-    heatmap.heatmap.map = self;
+    heatmap.map = self;
     [self.tileLayers addObject:heatmap];
   }
   
