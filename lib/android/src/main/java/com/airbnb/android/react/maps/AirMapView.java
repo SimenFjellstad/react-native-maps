@@ -304,25 +304,6 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
       }
     });
 
-    void updateVisibleFeatures(){
-      double longitudeDelta = bounds.northeast.longitude - bounds.southwest.longitude;
-      
-      if(deltaHeatmaps){
-        if(minHeatmapDelta >= maxHeatmapDelta) minHeatmapDelta = 0;
-        if(longitudeDelta >= minHeatmapDelta && longitudeDelta <= maxHeatmapDelta)
-          setHeatmapsVisible(true);
-        else 
-          setHeatmapsVisible(false);
-      }
-      if(deltaMarkers){
-        if(minMarkerDelta >= maxMarkerDelta) minMarkerDelta = 0;
-        if(longitudeDelta >= minMarkerDelta && longitudeDelta <= maxMarkerDelta)
-          setMarkersVisible(true);
-        else 
-          setMarkersVisible(false);
-      }
-    }
-
     // We need to be sure to disable location-tracking when app enters background, in-case some
     // other module
     // has acquired a wake-lock and is controlling location-updates, otherwise, location-manager
@@ -541,6 +522,24 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
   }
 
+  public void updateVisibleFeatures(){
+      double longitudeDelta = bounds.northeast.longitude - bounds.southwest.longitude;
+      
+      if(deltaHeatmaps){
+        if(minHeatmapDelta >= maxHeatmapDelta) minHeatmapDelta = 0;
+        if(longitudeDelta >= minHeatmapDelta && longitudeDelta <= maxHeatmapDelta)
+          setHeatmapsVisible(true);
+        else 
+          setHeatmapsVisible(false);
+      }
+      if(deltaMarkers){
+        if(minMarkerDelta >= maxMarkerDelta) minMarkerDelta = 0;
+        if(longitudeDelta >= minMarkerDelta && longitudeDelta <= maxMarkerDelta)
+          setMarkersVisible(true);
+        else 
+          setMarkersVisible(false);
+      }
+    }
   public void setMarkersVisible(boolean markersVisible, boolean force = false){
     if(markersVisible != this.markersVisible || force)
       for (AirMapMarker marker : markerMap.values()) {
