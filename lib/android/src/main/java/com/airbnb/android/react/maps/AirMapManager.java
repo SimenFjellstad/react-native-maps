@@ -33,6 +33,7 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
   private static final int FIT_TO_SUPPLIED_MARKERS = 4;
   private static final int FIT_TO_COORDINATES = 5;
 
+
   private final Map<String, Integer> MAP_TYPES = MapBuilder.of(
       "standard", GoogleMap.MAP_TYPE_NORMAL,
       "satellite", GoogleMap.MAP_TYPE_SATELLITE,
@@ -177,16 +178,40 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
   public void setPitchEnabled(AirMapView view, boolean pitchEnabled) {
     view.map.getUiSettings().setTiltGesturesEnabled(pitchEnabled);
   }
-
   @ReactProp(name = "minZoomLevel")
   public void setMinZoomLevel(AirMapView view, float minZoomLevel) {
     view.map.setMinZoomPreference(minZoomLevel);
   }
-
   @ReactProp(name = "maxZoomLevel")
   public void setMaxZoomLevel(AirMapView view, float maxZoomLevel) {
     view.map.setMaxZoomPreference(maxZoomLevel);
   }
+  
+  @ReactProp(name = "deltaHeatmaps", defaultBoolean = false)
+  public void setDeltaHeatmaps(AirMapView view, boolean deltaHeatmaps) {
+    view.setDeltaHeatmaps(deltaHeatmaps);
+  }
+  @ReactProp(name = "deltaMarkers", defaultBoolean = false)
+  public void setDeltaMarkers(AirMapView view, boolean deltaMarkers) {
+    view.setDeltaMarkers(deltaMarkers);
+  }
+  @ReactProp(name = "heatmapsMinDelta")
+  public void setHeatmapsMinDelta(AirMapView view, double heatmapsMinDelta) {
+    view.setHeatmapsMinDelta(heatmapsMinDelta);
+  }
+  @ReactProp(name = "heatmapsMaxDelta")
+  public void setHeatmapsMaxDelta(AirMapView view, double heatmapsMaxDelta) {
+    view.setHeatmapsMaxDelta(heatmapsMaxDelta);
+  }
+  @ReactProp(name = "markersMinDelta")
+  public void setMarkersMinDelta(AirMapView view, double markersMinDelta) {
+    view.setMarkersMinDelta(markersMinDelta);
+  }
+  @ReactProp(name = "markersMaxDelta")
+  public void setMarkersMaxDelta(AirMapView view, double markersMaxDelta) {
+    view.setMarkersMaxDelta(markersMaxDelta);
+  }
+
 
   @Override
   public void receiveCommand(AirMapView view, int commandId, @Nullable ReadableArray args) {

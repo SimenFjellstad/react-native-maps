@@ -75,6 +75,15 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   private static final String[] PERMISSIONS = new String[]{
       "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"};
 
+
+  private boolean deltaMarkers = false;
+  private boolean deltaHeatmaps = false;
+  private boolean isMarkersVisible = true;
+  private boolean isHeatmapsVisible = true;
+  private double heatmapsMinDelta = 0;
+  private double heatmapsMaxDelta = Double.MAX_VALUE;
+  private double markersMinDelta = 0;
+  private double markersMaxDelta = Double.MAX_VALUE;
   private final List<AirMapFeature> features = new ArrayList<>();
   private final Map<Marker, AirMapMarker> markerMap = new HashMap<>();
   private final Map<Polyline, AirMapPolyline> polylineMap = new HashMap<>();
@@ -281,6 +290,10 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
         lastBoundsEmitted = bounds;
         eventDispatcher.dispatchEvent(new RegionChangeEvent(getId(), bounds, center, isTouchDown));
         view.stopMonitoringRegion();
+
+
+        AirMapView.this.updateVisibleFeatures(bounds);
+       
       }
     });
 
@@ -290,6 +303,25 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
         AirMapView.this.cacheView();
       }
     });
+
+    void updateVisibleFeatures(){
+      double longitudeDelta = bounds.northeast.longitude - bounds.southwest.longitude;
+      
+      if(deltaHeatmaps){
+        if(minHeatmapDelta >= maxHeatmapDelta) minHeatmapDelta = 0;
+        if(longitudeDelta >= minHeatmapDelta && longitudeDelta <= maxHeatmapDelta)
+          setHeatmapsVisible(true);
+        else 
+          setHeatmapsVisible(false);
+      }
+      if(deltaMarkers){
+        if(minMarkerDelta >= maxMarkerDelta) minMarkerDelta = 0;
+        if(longitudeDelta >= minMarkerDelta && longitudeDelta <= maxMarkerDelta)
+          setMarkersVisible(true);
+        else 
+          setMarkersVisible(false);
+      }
+    }
 
     // We need to be sure to disable location-tracking when app enters background, in-case some
     // other module
@@ -509,10 +541,43 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
   }
 
+  public void setMarkersVisible(boolean markersVisible, boolean force = false){
+    if(markersVisible != this.markersVisible || force)
+      for (AirMapMarker marker : markerMap.values()) {
+        ((Marker)marker.getFeature()).setVisible(markersVisible);
+      }
+    this.markersVisible = markersVisible;
+  }
+  public void setHeatmapsVisible(boolean heatmapsVisible, boolean force = false){
+    if(heatmapsVisible != this.heatmapsVisible || force)
+      for (AirMapHeatmap heatmap : heatmapMap.values()) {
+        ((TileOverlay)heatmap.getFeature()).setVisible(heatmapsVisible);
+      }
+    this.markersVisible = markersVisible;
+  }
+  public void setDeltaMarkers(boolean deltaMarkers){
+    this.deltaMarkers = deltaMarkers;
+  }
+  public void setDeltaHeatmaps(boolean deltaHeatmaps){
+    this.deltaHeatmaps = deltaHeatmaps;
+  }
+  public void setMarkersMinDelta(double delta){
+    this.markersMinDelta = delta;
+  }
+  public void setMarkersMaxDelta(double delta){
+    this.markersMaxDelta = delta;
+  }
+  public void setHeatmapsMinDelta(double delta){
+    this.heatmapsMinDelta = delta;
+  }
+  public void setHeatmapsMaxDelta(double delta){
+    this.heatmapsMaxDelta = delta;
+  }
+
+
   public int getFeatureCount() {
     return features.size();
   }
-
   public View getFeatureAt(int index) {
     return features.get(index);
   }
