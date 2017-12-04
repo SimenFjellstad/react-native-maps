@@ -523,32 +523,32 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   }
 
   public void updateVisibleFeatures(){
-      double longitudeDelta = bounds.northeast.longitude - bounds.southwest.longitude;
-      
-      if(deltaHeatmaps){
-        if(minHeatmapDelta >= maxHeatmapDelta) minHeatmapDelta = 0;
-        if(longitudeDelta >= minHeatmapDelta && longitudeDelta <= maxHeatmapDelta)
-          setHeatmapsVisible(true);
-        else 
-          setHeatmapsVisible(false);
-      }
-      if(deltaMarkers){
-        if(minMarkerDelta >= maxMarkerDelta) minMarkerDelta = 0;
-        if(longitudeDelta >= minMarkerDelta && longitudeDelta <= maxMarkerDelta)
-          setMarkersVisible(true);
-        else 
-          setMarkersVisible(false);
-      }
+    double longitudeDelta = bounds.northeast.longitude - bounds.southwest.longitude;
+    
+    if(deltaHeatmaps){
+      if(minHeatmapDelta >= maxHeatmapDelta) minHeatmapDelta = 0;
+      if(longitudeDelta >= minHeatmapDelta && longitudeDelta <= maxHeatmapDelta)
+        setHeatmapsVisible(true);
+      else 
+        setHeatmapsVisible(false);
     }
-  public void setMarkersVisible(boolean markersVisible, boolean force = false){
-    if(markersVisible != this.markersVisible || force)
+    if(deltaMarkers){
+      if(minMarkerDelta >= maxMarkerDelta) minMarkerDelta = 0;
+      if(longitudeDelta >= minMarkerDelta && longitudeDelta <= maxMarkerDelta)
+        setMarkersVisible(true);
+      else 
+        setMarkersVisible(false);
+    }
+  }
+  public void setMarkersVisible(boolean markersVisible){
+    if(markersVisible != this.markersVisible)
       for (AirMapMarker marker : markerMap.values()) {
         ((Marker)marker.getFeature()).setVisible(markersVisible);
       }
     this.markersVisible = markersVisible;
   }
-  public void setHeatmapsVisible(boolean heatmapsVisible, boolean force = false){
-    if(heatmapsVisible != this.heatmapsVisible || force)
+  public void setHeatmapsVisible(boolean heatmapsVisible){
+    if(heatmapsVisible != this.heatmapsVisible)
       for (AirMapHeatmap heatmap : heatmapMap.values()) {
         ((TileOverlay)heatmap.getFeature()).setVisible(heatmapsVisible);
       }
