@@ -199,23 +199,23 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
   public void setHeatmapsVisible(AirMapView view, boolean heatmapsVisible) {
     view.setHeatmapsVisible(heatmapsVisible);
   }
-  @ReactProp(name = "MarkersVisible", defaultBoolean = true)
+  @ReactProp(name = "markersVisible", defaultBoolean = true)
   public void setMarkersVisible(AirMapView view, boolean markersVisible) {
     view.setMarkersVisible(markersVisible);
   }
-  @ReactProp(name = "heatmapsMinDelta")
+  @ReactProp(name = "heatmapsMinDelta", defaultDouble = 0)
   public void setHeatmapsMinDelta(AirMapView view, double heatmapsMinDelta) {
     view.setHeatmapsMinDelta(heatmapsMinDelta);
   }
-  @ReactProp(name = "heatmapsMaxDelta")
+  @ReactProp(name = "heatmapsMaxDelta", defaultDouble = 5000)
   public void setHeatmapsMaxDelta(AirMapView view, double heatmapsMaxDelta) {
     view.setHeatmapsMaxDelta(heatmapsMaxDelta);
   }
-  @ReactProp(name = "markersMinDelta")
+  @ReactProp(name = "markersMinDelta", defaultDouble = 0)
   public void setMarkersMinDelta(AirMapView view, double markersMinDelta) {
     view.setMarkersMinDelta(markersMinDelta);
   }
-  @ReactProp(name = "markersMaxDelta")
+  @ReactProp(name = "markersMaxDelta", defaultDouble = 5000)
   public void setMarkersMaxDelta(AirMapView view, double markersMaxDelta) {
     view.setMarkersMaxDelta(markersMaxDelta);
   }

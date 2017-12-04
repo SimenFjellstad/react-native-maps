@@ -78,12 +78,12 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
 
   private boolean deltaMarkers = false;
   private boolean deltaHeatmaps = false;
-  private boolean isMarkersVisible = true;
-  private boolean isHeatmapsVisible = true;
+  private boolean markersVisible = true;
+  private boolean heatmapsVisible = true;
   private double heatmapsMinDelta = 0;
-  private double heatmapsMaxDelta = Double.MAX_VALUE;
+  private double heatmapsMaxDelta = 5000;//Double.MAX_VALUE;
   private double markersMinDelta = 0;
-  private double markersMaxDelta = Double.MAX_VALUE;
+  private double markersMaxDelta = 5000;//Double.MAX_VALUE;
   private final List<AirMapFeature> features = new ArrayList<>();
   private final Map<Marker, AirMapMarker> markerMap = new HashMap<>();
   private final Map<Polyline, AirMapPolyline> polylineMap = new HashMap<>();
@@ -522,19 +522,19 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     }
   }
 
-  public void updateVisibleFeatures(){
+  public void updateVisibleFeatures(LatLngBounds bounds){
     double longitudeDelta = bounds.northeast.longitude - bounds.southwest.longitude;
     
     if(deltaHeatmaps){
-      if(minHeatmapDelta >= maxHeatmapDelta) minHeatmapDelta = 0;
-      if(longitudeDelta >= minHeatmapDelta && longitudeDelta <= maxHeatmapDelta)
+      //if(heatmapsMinDelta >= heatmapsMaxDelta) heatmapsMinDelta = 0;
+      if(longitudeDelta >= heatmapsMinDelta && longitudeDelta <= heatmapsMaxDelta)
         setHeatmapsVisible(true);
       else 
         setHeatmapsVisible(false);
     }
     if(deltaMarkers){
-      if(minMarkerDelta >= maxMarkerDelta) minMarkerDelta = 0;
-      if(longitudeDelta >= minMarkerDelta && longitudeDelta <= maxMarkerDelta)
+      //if(markersMinDelta >= markersMaxDelta) markersMinDelta = 0;
+      if(longitudeDelta >= markersMinDelta && longitudeDelta <= markersMaxDelta)
         setMarkersVisible(true);
       else 
         setMarkersVisible(false);
@@ -552,7 +552,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
       for (AirMapHeatmap heatmap : heatmapMap.values()) {
         ((TileOverlay)heatmap.getFeature()).setVisible(heatmapsVisible);
       }
-    this.markersVisible = markersVisible;
+    this.heatmapsVisible = heatmapsVisible;
   }
   public void setDeltaMarkers(boolean deltaMarkers){
     this.deltaMarkers = deltaMarkers;
