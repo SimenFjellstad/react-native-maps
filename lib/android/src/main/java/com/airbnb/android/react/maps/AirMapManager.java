@@ -195,6 +195,14 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
   public void setDeltaMarkers(AirMapView view, boolean deltaMarkers) {
     view.setDeltaMarkers(deltaMarkers);
   }
+  @ReactProp(name = "heatmapsVisible", defaultBoolean = true)
+  public void setHeatmapsVisible(AirMapView view, boolean heatmapsVisible) {
+    view.setHeatmapsVisible(heatmapsVisible);
+  }
+  @ReactProp(name = "MarkersVisible", defaultBoolean = true)
+  public void setMarkersVisible(AirMapView view, boolean markersVisible) {
+    view.setMarkersVisible(markersVisible);
+  }
   @ReactProp(name = "heatmapsMinDelta")
   public void setHeatmapsMinDelta(AirMapView view, double heatmapsMinDelta) {
     view.setHeatmapsMinDelta(heatmapsMinDelta);
