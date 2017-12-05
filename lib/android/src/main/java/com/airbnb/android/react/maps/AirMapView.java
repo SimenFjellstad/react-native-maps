@@ -81,9 +81,9 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   private boolean markersVisible = true;
   private boolean heatmapsVisible = true;
   private double heatmapsMinDelta = 0;
-  private double heatmapsMaxDelta = 5000;//Double.MAX_VALUE;
+  private double heatmapsMaxDelta = Double.MAX_VALUE;
   private double markersMinDelta = 0;
-  private double markersMaxDelta = 5000;//Double.MAX_VALUE;
+  private double markersMaxDelta = Double.MAX_VALUE;
   private final List<AirMapFeature> features = new ArrayList<>();
   private final Map<Marker, AirMapMarker> markerMap = new HashMap<>();
   private final Map<Polyline, AirMapPolyline> polylineMap = new HashMap<>();
@@ -196,6 +196,9 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     manager.pushEvent(context, this, "onMapReady", new WritableNativeMap());
 
     final AirMapView view = this;
+
+    LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
+    AirMapView.this.updateVisibleFeatures(bounds);
 
     map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
       @Override
@@ -483,11 +486,12 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     // Our desired API is to pass up annotations/overlays as children to the mapview component.
     // This is where we intercept them and do the appropriate underlying mapview action.
     if (child instanceof AirMapMarker) {
-      AirMapMarker annotation = (AirMapMarker) child;
-      annotation.addToMap(map);
-      features.add(index, annotation);
-      Marker marker = (Marker) annotation.getFeature();
-      markerMap.put(marker, annotation);
+      AirMapMarker markerView = (AirMapMarker) child;
+      markerView.addToMap(map);
+      features.add(index, markerView);
+      Marker marker = (Marker) markerView.getFeature();
+      marker.setVisible(markersVisible);
+      markerMap.put(marker, markerView);
     } else if (child instanceof AirMapPolyline) {
       AirMapPolyline polylineView = (AirMapPolyline) child;
       polylineView.addToMap(map);
@@ -513,6 +517,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
       heatmapView.addToMap(map);
       features.add(index, heatmapView);
       TileOverlay heatmap = (TileOverlay)heatmapView.getFeature();
+      heatmap.setVisible(heatmapsVisible);
       heatmapMap.put(heatmap, heatmapView);
     } else {
       ViewGroup children = (ViewGroup) child;
@@ -523,22 +528,10 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   }
 
   public void updateVisibleFeatures(LatLngBounds bounds){
-    double longitudeDelta = bounds.northeast.longitude - bounds.southwest.longitude;
-    
-    if(deltaHeatmaps){
-      //if(heatmapsMinDelta >= heatmapsMaxDelta) heatmapsMinDelta = 0;
-      if(longitudeDelta >= heatmapsMinDelta && longitudeDelta <= heatmapsMaxDelta)
-        setHeatmapsVisible(true);
-      else 
-        setHeatmapsVisible(false);
-    }
-    if(deltaMarkers){
-      //if(markersMinDelta >= markersMaxDelta) markersMinDelta = 0;
-      if(longitudeDelta >= markersMinDelta && longitudeDelta <= markersMaxDelta)
-        setMarkersVisible(true);
-      else 
-        setMarkersVisible(false);
-    }
+    double longitudeDelta = 
+      Math.abs(bounds.northeast.longitude - bounds.southwest.longitude);
+    this.updateMarkersVisibility(longitudeDelta);
+    this.updateHeatmapsVisibility(longitudeDelta);
   }
   public void setMarkersVisible(boolean markersVisible){
     if(markersVisible != this.markersVisible)
@@ -554,23 +547,69 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
       }
     this.heatmapsVisible = heatmapsVisible;
   }
+
+  void updateHeatmapsVisibility(double delta){
+    setHeatmapsVisible(getHeatmapsVisibility(delta));
+  }
+  void updateHeatmapsVisibility(){
+    LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
+    double longitudeDelta = 
+      Math.abs(bounds.northeast.longitude - bounds.southwest.longitude);
+    updateHeatmapsVisibility(longitudeDelta);
+  }
+  boolean getHeatmapsVisibility(double delta){
+    if(deltaHeatmaps){
+      if(delta >= heatmapsMinDelta && delta <= heatmapsMaxDelta)
+        return true;
+      else 
+        return false;
+    }
+    return true;
+  }
+  
+  void updateMarkersVisibility(double delta){
+    setMarkersVisible(getMarkersVisibility(delta));
+  }
+  void updateMarkersVisibility(){
+    LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
+    double longitudeDelta = 
+      Math.abs(bounds.northeast.longitude - bounds.southwest.longitude);
+    updateMarkersVisibility(longitudeDelta);
+  }
+  boolean getMarkersVisibility(double delta){
+    if(deltaMarkers){
+      if(delta >= markersMinDelta && delta <= markersMaxDelta)
+        return true;
+      else 
+        return false;
+    }
+    return true;
+  }
+
   public void setDeltaMarkers(boolean deltaMarkers){
     this.deltaMarkers = deltaMarkers;
-  }
-  public void setDeltaHeatmaps(boolean deltaHeatmaps){
-    this.deltaHeatmaps = deltaHeatmaps;
+    updateMarkersVisibility();
   }
   public void setMarkersMinDelta(double delta){
     this.markersMinDelta = delta;
+    updateMarkersVisibility();
   }
   public void setMarkersMaxDelta(double delta){
     this.markersMaxDelta = delta;
+    updateMarkersVisibility();
+  }
+
+  public void setDeltaHeatmaps(boolean deltaHeatmaps){
+    this.deltaHeatmaps = deltaHeatmaps;
+    updateHeatmapsVisibility();
   }
   public void setHeatmapsMinDelta(double delta){
     this.heatmapsMinDelta = delta;
+    updateHeatmapsVisibility();
   }
   public void setHeatmapsMaxDelta(double delta){
     this.heatmapsMaxDelta = delta;
+    updateHeatmapsVisibility();
   }
 
 
