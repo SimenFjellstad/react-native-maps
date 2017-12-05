@@ -549,7 +549,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   }
 
   void updateHeatmapsVisibility(double delta){
-    setHeatmapsVisible(getHeatmapsVisibility(delta));
+    if(deltaHeatmaps)setHeatmapsVisible(getHeatmapsVisibility(delta));
   }
   void updateHeatmapsVisibility(){
     LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
@@ -568,7 +568,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   }
   
   void updateMarkersVisibility(double delta){
-    setMarkersVisible(getMarkersVisibility(delta));
+    if(deltaMarkers)setMarkersVisible(getMarkersVisibility(delta));
   }
   void updateMarkersVisibility(){
     LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
