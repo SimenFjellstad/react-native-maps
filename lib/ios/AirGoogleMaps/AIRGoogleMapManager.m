@@ -70,6 +70,16 @@ RCT_EXPORT_VIEW_PROPERTY(mapType, GMSMapViewType)
 RCT_EXPORT_VIEW_PROPERTY(minZoomLevel, CGFloat)
 RCT_EXPORT_VIEW_PROPERTY(maxZoomLevel, CGFloat)
 
+RCT_EXPORT_VIEW_PROPERTY(deltaHeatmaps, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(deltaMarkers, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(heatmapsVisible, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(markersVisible, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(heatmapsMinDelta, double)
+RCT_EXPORT_VIEW_PROPERTY(heatmapsMaxDelta, double)
+RCT_EXPORT_VIEW_PROPERTY(markersMinDelta, double)
+RCT_EXPORT_VIEW_PROPERTY(markersMaxDelta, double)
+
+
 RCT_EXPORT_METHOD(animateToRegion:(nonnull NSNumber *)reactTag
                   withRegion:(MKCoordinateRegion)region
                   withDuration:(CGFloat)duration)
