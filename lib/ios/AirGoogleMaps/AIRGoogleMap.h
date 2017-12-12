@@ -41,6 +41,15 @@
 @property (nonatomic, assign) BOOL pitchEnabled;
 @property (nonatomic, assign) BOOL showsUserLocation;
 @property (nonatomic, assign) BOOL showsMyLocationButton;
+@property (nonatomic, assign) BOOL deltaMarkers;
+@property (nonatomic, assign) BOOL deltaHeatmaps;
+@property (nonatomic, assign) BOOL markersVisible;
+@property (nonatomic, assign) BOOL heatmapsVisible;
+@property (nonatomic, assign) double heatmapsMinDelta;
+@property (nonatomic, assign) double heatmapsMaxDelta;
+@property (nonatomic, assign) double markersMinDelta;
+@property (nonatomic, assign) double markersMaxDelta;
+
 
 - (void)didFinishTileRendering;
 - (BOOL)didTapMarker:(GMSMarker *)marker;

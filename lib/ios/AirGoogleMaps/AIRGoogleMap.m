@@ -49,6 +49,14 @@ id regionAsJSON(MKCoordinateRegion region) {
     _tiles = [NSMutableArray array];
     _tileLayers = [NSMutableArray array];
     _initialRegionSet = false;
+    _deltaMarkers = false;
+    _deltaHeatmaps = false;
+    _markersVisible = true;
+    _heatmapsVisible = true;
+    _markersMaxDelta = DBL_MAX;
+    _heatmapsMaxDelta = DBL_MAX;
+    _markersMinDelta = 0;
+    _heatmapsMinDelta = 0;
   }
   return self;
 }
@@ -75,7 +83,7 @@ id regionAsJSON(MKCoordinateRegion region) {
   // This is where we intercept them and do the appropriate underlying mapview action.
   if ([subview isKindOfClass:[AIRGoogleMapMarker class]]) {
     AIRGoogleMapMarker *marker = (AIRGoogleMapMarker*)subview;
-    marker.realMarker.map = self;
+    marker.realMarker.map = _markersVisible ? self : nil;
     [self.markers addObject:marker];
   } else if ([subview isKindOfClass:[AIRGoogleMapPolygon class]]) {
     AIRGoogleMapPolygon *polygon = (AIRGoogleMapPolygon*)subview;
@@ -98,7 +106,7 @@ id regionAsJSON(MKCoordinateRegion region) {
   
   else if ([subview isKindOfClass:[AIRGoogleMapHeatmap class]]) {
     AIRGoogleMapHeatmap *heatmap = (AIRGoogleMapHeatmap*)subview;
-    heatmap.map = self;
+    heatmap.map = _heatmapsVisible ? self : nil;
     [self.tileLayers addObject:heatmap];
   }
   
@@ -175,13 +183,16 @@ id regionAsJSON(MKCoordinateRegion region) {
 }
 
 - (void)didFinishTileRendering {
-    if (self.onMapReady) self.onMapReady(@{});
+  if (self.onMapReady){
+    self.onMapReady(@{});
+    [self updateVisibleFeatures];
+
+  }
   for(int i = 0; i < [_tileLayers count]; i++){
     if([_tileLayers[i] isKindOfClass:[AIRGoogleMapHeatmap class]]){
       AIRGoogleMapHeatmap *item = (AIRGoogleMapHeatmap *) _tileLayers[i];
       [item initiate];
     }
-    
   }
 }
 
@@ -235,6 +246,8 @@ id regionAsJSON(MKCoordinateRegion region) {
                @"region": regionAsJSON([AIRGoogleMap makeGMSCameraPositionFromMap:self andGMSCameraPosition:position]),
                };
 
+  [self updateVisibleFeatures];
+  
   if (self.onChange) self.onChange(event);
 }
 
@@ -336,6 +349,90 @@ id regionAsJSON(MKCoordinateRegion region) {
 
 - (void)setMaxZoomLevel:(CGFloat)maxZoomLevel {
   [self setMinZoom:self.minZoom maxZoom:maxZoomLevel ];
+}
+
+- (void) setMarkersMaxDelta:(double)markersMaxDelta{
+  _markersMaxDelta = markersMaxDelta;
+  NSLog(@"SET MARKER MAX %f", markersMaxDelta);
+}
+- (void) setMarkersMinDelta:(double)markersMinDelta{
+  _markersMinDelta = markersMinDelta;
+}
+
+- (void) updateVisibleFeatures{
+  GMSVisibleRegion visibleRegion = self.projection.visibleRegion;
+  GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion: visibleRegion];
+  [self updateVisibleFeatures:bounds];
+}
+
+- (void) updateVisibleFeatures:(GMSCoordinateBounds *)bounds{
+  double longitudeDelta = bounds.northEast.longitude - bounds.southWest.longitude;
+  NSLog(@"Delta %f", longitudeDelta);
+  [self updateMarkersVisibility:longitudeDelta];
+  [self updateHeatmapsVisibility:longitudeDelta];
+}
+
+- (void) updateMarkersVisibility:(double)delta{
+  if(_deltaMarkers) [self setMarkersVisibility:[self getMarkersVisibility:delta]];
+}
+- (void) updateMarkersVisibility{
+  GMSVisibleRegion visibleRegion = self.projection.visibleRegion;
+  GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion: visibleRegion];
+  double longitudeDelta = bounds.northEast.longitude - bounds.southWest.longitude;
+  [self updateMarkersVisibility:longitudeDelta];
+}
+- (bool) getMarkersVisibility:(double) delta{
+  NSLog(@"Delta %f", delta);
+  NSLog(@"MarkerMin %f", _markersMinDelta);
+  NSLog(@"MarkerMax %f", _markersMaxDelta);
+  NSLog(_deltaMarkers ? @"IsDelta: Yes" : @"IsDelta: No");
+
+  if(_deltaMarkers){
+    if((delta >= _markersMinDelta && delta <= _markersMaxDelta))
+      return true;
+    else
+      return false;
+  }
+  return true;
+}
+- (void)setMarkersVisibility:(bool)visible{
+  if(visible != _markersVisible)
+    for(int i = 0; i < [_markers count]; i++){
+      AIRGoogleMapMarker *marker = [_markers objectAtIndex:i];
+      marker.realMarker.map = visible ? self : nil;
+    }
+  _markersVisible = visible;
+}
+
+- (void) updateHeatmapsVisibility:(double)delta{
+  if(_deltaHeatmaps) [self setHeatmapsVisibility:[self getHeatmapsVisibility:delta]];
+}
+
+- (void) updateHeatmapsVisibility{
+  GMSVisibleRegion visibleRegion = self.projection.visibleRegion;
+  GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] initWithRegion: visibleRegion];
+  double longitudeDelta = bounds.northEast.longitude - bounds.southWest.longitude;
+  [self updateHeatmapsVisibility:longitudeDelta];
+}
+
+- (bool) getHeatmapsVisibility:(double) delta{
+  if(_deltaHeatmaps){
+    if(delta >= _heatmapsMinDelta && delta <= _heatmapsMaxDelta){
+      return true;
+    }
+    else return false;
+  }
+  return true;
+}
+
+- (void)setHeatmapsVisibility:(bool)visible{
+  if(visible != _heatmapsVisible)
+    for(int i = 0; i < [_tileLayers count]; i++){
+        GMSTileLayer *tileLayer = [_tileLayers objectAtIndex:i];
+        tileLayer.map = visible ? self : nil;
+      
+    }
+  _heatmapsVisible = visible;
 }
 
 + (MKCoordinateRegion) makeGMSCameraPositionFromMap:(GMSMapView *)map andGMSCameraPosition:(GMSCameraPosition *)position {
